@@ -2,7 +2,12 @@ from openai import OpenAI
 
 # API key: 
 # sk-proj-YEo5jXJ0n2Dl9UCy2PmkT3BlbkFJt5wuh5o3nTg2gsJMg4e4
-client = OpenAI(api_key= "sk-proj-YEo5jXJ0n2Dl9UCy2PmkT3BlbkFJt5wuh5o3nTg2gsJMg4e4")
+    
+# gets API key from private file
+with open('C:/Users/conno/IMCATestProject/IMCA-AI-Project/misc/Key.txt', 'r') as file:
+    key = file.read().rstrip()
+    
+client = OpenAI(api_key= key)
 
 def get_text_query(request:str) -> str:
 
