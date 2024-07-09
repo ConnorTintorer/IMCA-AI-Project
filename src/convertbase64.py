@@ -16,12 +16,13 @@ def encode_all(dir_path:str)->list:
     base64_images = []
 
     for filename in os.listdir(dir_path):
-        image_path = os.path.join(dir_path, filename)
-
         # assuming image_id is always first 4 characters
-        image_id = filename[:4]
-        encoded_image = encode_image(image_path)
-        base64_images.append({"id": image_id, "filename" : filename, "base64": encoded_image})
+        # skips files that do not start with a number 
+        if(filename[:4].isdigit and filename.endswith('.jpg')):
+            image_path = os.path.join(dir_path, filename)
+            image_id = filename[:4]
+            encoded_image = encode_image(image_path)
+            base64_images.append({"id": image_id, "filename" : filename, "base64": encoded_image})
 
     return base64_images
     
@@ -35,4 +36,4 @@ def get_image_data(dir_path:str)->list:
     save_image_data(base64_images)
     return base64_images
 
-get_image_data('C:/Users/conno/IMCATestProject/data/People')
+#get_image_data('C:/Users/conno/IMCATestProject/data/People')
