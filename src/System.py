@@ -1,9 +1,6 @@
 import OpenAIPrompting
 import convertbase64
 import pandas as pd
-import csv
-
-
 
 
 def call_gpt(image_data:list)->list:
@@ -13,19 +10,13 @@ def call_gpt(image_data:list)->list:
 
         Returns: List of Unfilitered query responses'''
     
-    request = "Describe the provided image by returning a list of single-word keyword classifications"
+    # request = "Describe the provided image by returning a list of single-word keyword classifications"
     # other example to filter for specific, provided keywords
-    # request = """
-    # Given the following image data, please check if the image contains any of the following keywords:
-    # - people
-    # - animals
-    # - mountains
-    # - buildings
-    # - trees
+    request = """Given the following image data, please check if the image contains any of the following keywords:
+    Abstract, Night, Body of Water, Boat, Person, Mountain, Fruit, Still-life, Trees, Landscape, House, Infrastructure, Building, Bridge, Day, Light, Transportation, Animal, Dog, Cat, Horse, Cow, River, Lake, Ocean, Flower, Nude, Historical, Portraiture, Genre, Woman, Man, Child, Bird, Garden, Geometric, Biomorphic, Monochrome, Gestural Abstraction, Symmetry, Text, Forshortening, Pattern, Brushstrokes
 
-    # Return a list of the keywords that are present in the image.
-    # Image data: {base64_image}
-    # """
+    Please return the identified keywords as a comma-separated list. If no keywords are identified, return the word "None."
+    """
     response_list = [] # list of dictionaries where each dictionary contains id, gpt4o response
 
     for image in image_data:
@@ -47,7 +38,7 @@ def filter_response(classified_images:list)->pd.DataFrame:
         del image['response'] # removes raw string response, replacing it with a classifications list
 
     df = pd.DataFrame(classified_images)
-    df['classifications'] = df['classifications'].apply(lambda x: ', '.join(x))
+    df['classifications'] = df['classifications'].apply(lambda x: ' '.join(x))
     
     return df
 
@@ -61,15 +52,6 @@ def write_to_csv(filtered:pd.DataFrame)->None:
         Args: filtered -> list of dictionarys containing the filtered data with the above key, value pairs
         
         Returns: None"""
-    
-    # fieldnames = ["id", "classifications", "filename"]
-    # with open("image_data.csv", 'w', newline='') as f:
-    #     writer = csv.DictWriter(f, fieldnames=fieldnames)
-    #     writer.writeheader()
-       
-    #     for item in filtered:
-    #         item['classifications'] = ', '.join(item['classifications'])
-    #         writer.writerow(item)
 
     filtered.to_csv("image_data.csv", index=False)
 

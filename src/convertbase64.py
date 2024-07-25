@@ -23,6 +23,10 @@ def encode_all(dir_path:str)->list:
             image_id = filename[:4]
             encoded_image = encode_image(image_path)
             base64_images.append({"id": image_id, "filename" : filename, "base64": encoded_image})
+        else:
+            # dump outliers into their own file 
+            with open('outliers.json', 'w') as f:
+                json.dump(filename, f)
 
     return base64_images
     
