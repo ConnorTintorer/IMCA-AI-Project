@@ -1,7 +1,11 @@
 from openai import OpenAI
+import os
     
 # gets API key from private file
-with open('C:/Users/conno/IMCATestProject/IMCA-AI-Project/misc/Key.txt', 'r', encoding='utf-8') as file:
+current_directory = os.path.dirname(os.path.abspath(__file__))
+key_path = os.path.join(current_directory, "Key.txt")
+
+with open(key_path, 'r', encoding='utf-8') as file:
     key = file.read().rstrip()
     
 client = OpenAI(api_key= key)

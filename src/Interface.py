@@ -44,7 +44,9 @@ root.geometry("700x400")
 root['background'] = '#E1CDB3'
 
 #Peter picture :D
-peter_path = "C:/Users/conno/IMCATestProject/misc/peter2.png"
+cwd = os.path.dirname(os.path.abspath(__file__))
+peter_filename = "peter2.png"
+peter_path = os.path.join(cwd, peter_filename)
 peter = Image.open(peter_path)
 peter = peter.resize((250, 200), Image.Resampling.LANCZOS)
 photo = ImageTk.PhotoImage(peter)
