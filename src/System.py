@@ -1,7 +1,14 @@
 import OpenAIPrompting
 import convertbase64
 import pandas as pd
+import json
 
+
+PROMPT = """Given the following image data, please check if the image contains any of the following keywords:
+    Abstract, Night, Body of Water, Boat, Person, Mountain, Fruit, Still-life, Trees, Landscape, House, Infrastructure, Building, Bridge, Day, Light, Transportation, Animal, Dog, Cat, Horse, Cow, River, Lake, Ocean, Flower, Nude, Historical, Portraiture, Genre, Woman, Man, Child, Bird, Garden, Geometric, Biomorphic, Monochrome, Gestural Abstraction, Symmetry, Text, Forshortening, Pattern, Brushstrokes
+
+    Please return the identified keywords as a comma-separated list. If no keywords are identified, return the word "None."
+    """
 
 def call_gpt(image_data:list)->list:
     ''' loops through all the images and makes api calls for each of them
@@ -12,11 +19,7 @@ def call_gpt(image_data:list)->list:
     
     # request = "Describe the provided image by returning a list of single-word keyword classifications"
     # other example to filter for specific, provided keywords
-    request = """Given the following image data, please check if the image contains any of the following keywords:
-    Abstract, Night, Body of Water, Boat, Person, Mountain, Fruit, Still-life, Trees, Landscape, House, Infrastructure, Building, Bridge, Day, Light, Transportation, Animal, Dog, Cat, Horse, Cow, River, Lake, Ocean, Flower, Nude, Historical, Portraiture, Genre, Woman, Man, Child, Bird, Garden, Geometric, Biomorphic, Monochrome, Gestural Abstraction, Symmetry, Text, Forshortening, Pattern, Brushstrokes
-
-    Please return the identified keywords as a comma-separated list. If no keywords are identified, return the word "None."
-    """
+    request = PROMPT
     response_list = [] # list of dictionaries where each dictionary contains id, gpt4o response
 
     for image in image_data:
@@ -55,16 +58,68 @@ def write_to_csv(filtered:pd.DataFrame)->None:
 
     filtered.to_csv("image_data.csv", index=False)
 
-def process_images(path):
+@staticmethod
+def process_images(path, num_files=0):
     """Processes all the images in the given directory
         Writes results to csv file"""
-    image_data = convertbase64.get_image_data(path)
+    image_data = convertbase64.get_image_data(path, num_files)
     classified_images = call_gpt(image_data)
     filtered_images = filter_response(classified_images)
     write_to_csv(filtered_images)
+    # print(OpenAIPrompting.print_total_tokens())
     return 0
 
-PATH = 'C:/Users/conno/IMCATestProject/data/People'
+def batch_api_call(path):
+    image_data = convertbase64.get_image_data(path)
+    load_into_json(image_data)
+    batch = OpenAIPrompting.create_batch("image_descriptions.jsonl")
+    return batch
+    
+    
+def get_results(batch)->str:
+    """Takes in batch object
+    Gets the results of the batch after 24 hours
+    Returns the string of results"""
+    results = OpenAIPrompting.retrieve_batch(batch)
+    return results
+
+def load_into_json(image_data):
+    """Loads the image data into a json file so that it can be used for batch API calls"""
+    model = "gpt-4o"
+    prompt = PROMPT
+    for image in image_data:
+        base64_image = image["base64"] # or use image["url"] if using URLs
+        request_data = {
+            "model": model,
+            "max_tokens": 500,
+            "image_id": image["id"],  # Including image ID for reference in the response
+            "messages": [
+                {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": prompt
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/jpeg;base64,{base64_image}",
+                            "detail": "low"
+                        }
+                    }
+                ]
+                }
+            ]
+            
+        }
+        # jsonl_data.append(request_data)
+        
+    with open("image_descriptions.json", "a") as f:
+        f.write(json.dumps(request_data) + '\n')
+
+#PATH = 'C:/Users/conno/IMCATestProject/data/People'
+PATH = ''
 
 if __name__ == "__main__":
     # for testing only
