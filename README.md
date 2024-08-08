@@ -20,6 +20,9 @@ Keyword classification data is stored in image_data.csv with the format "id, fil
 ## **Using your API Key**
 To use your OpenAI key create a text file under /src titled "Key.txt" and paste your API key.
 
+## **How to Run**
+To run the program you just need to run Interface.py. This will create a GUI window from which you can select the directory of images as well as how many images you want to process. After selecting the folder, wait for the program to finish. The runtime will be printed to the terminal and the list of classifications will be written to "image_data.csv"
+
 ## **Constraints/Details**
 **Model**
 - Currently, GPT4o is the only model with vision capabilities so this model must be used
