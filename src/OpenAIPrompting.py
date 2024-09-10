@@ -1,12 +1,18 @@
 from openai import OpenAI
+from dotenv import load_dotenv
 import os
-    
-# gets API key from private file
-current_directory = os.path.dirname(os.path.abspath(__file__))
-key_path = os.path.join(current_directory, "Key.txt")
 
-with open(key_path, 'r', encoding='utf-8') as file:
-    key = file.read().rstrip()
+# Gets API key from env varibles
+load_dotenv()
+key = os.getenv('API_KEY')
+
+
+# gets API key from private file
+# current_directory = os.path.dirname(os.path.abspath(__file__))
+# key_path = os.path.join(current_directory, "Key.txt")
+
+# with open(key_path, 'r', encoding='utf-8') as file:
+#     key = file.read().rstrip()
     
 client = OpenAI(api_key= key)
 # total_tokens = 0
