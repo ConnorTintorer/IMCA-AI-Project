@@ -7,8 +7,23 @@ import json
 PROMPT = """Given the following image data, please check if the image contains any of the following keywords:
     Abstract, Night, Body of Water, Boat, Person, Mountain, Fruit, Still-life, Trees, Landscape, House, Infrastructure, Building, Bridge, Day, Light, Transportation, Animal, Dog, Cat, Horse, Cow, River, Lake, Ocean, Flower, Nude, Historical, Portraiture, Genre, Woman, Man, Child, Bird, Garden, Geometric, Biomorphic, Monochrome, Gestural Abstraction, Symmetry, Text, Forshortening, Pattern, Brushstrokes
 
-    Please return the identified keywords as a comma-separated list. If no keywords are identified, return the word "None."
+    Please return the identified keywords as a comma-separated list. If no keywords are identified, return 5 custom keywords not on the list."
     """
+
+# alternative prompt for generating descriptions for the artwork
+#PROMPT = "Given the following image, provide a visual description of the artwork"
+
+def get_descriptions_instead(image_data:list):
+    request = "Provide a brief, 2-3 sentence description for the following image"
+    response_list = [] # list of dictionaries where each dictionary contains id, gpt4o response
+
+    for image in image_data:
+        base64 = image["base64"]
+
+        api_response = OpenAIPrompting.get_image_query(request, base64)
+        response_list.append({"id": image['id'], "filename": image['filename'], "response": api_response})
+
+    return response_list
 
 def call_gpt(image_data:list)->list:
     ''' loops through all the images and makes api calls for each of them
@@ -22,11 +37,13 @@ def call_gpt(image_data:list)->list:
     request = PROMPT
     response_list = [] # list of dictionaries where each dictionary contains id, gpt4o response
 
-    for image in image_data:
-        base64 = image["base64"]
+    with open("raw_response.csv", 'w', encoding='utf-8') as file:
+        for image in image_data:
+            base64 = image["base64"]
 
-        api_response = OpenAIPrompting.get_image_query(request, base64)
-        response_list.append({"id": image['id'], "filename": image['filename'], "response": api_response})
+            api_response = OpenAIPrompting.get_image_query(request, base64)
+            response_list.append({"id": image['id'], "filename": image['filename'], "response": api_response})
+            file.write(f"filename: {image['filename']}, response:  {api_response}")
 
     return response_list
 

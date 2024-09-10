@@ -66,8 +66,4 @@ button = tk.Button(root, text="Select a Directory of Images", command=open_direc
 button.pack(pady=20)
 
 
-
-
-
 root.mainloop()
-    
