@@ -6,8 +6,10 @@ import System
 import time
 import os
 
+csv_path = None
 
 def open_directory():
+    global csv_path
     directory = filedialog.askdirectory()
     button['state'] = tk.DISABLED
     
@@ -21,12 +23,18 @@ def open_directory():
     # reassigns number of files to total file count processed if entry box is left blank or negative or too large
     num_files = int(entry.get()) if entry.get().isdigit() and int(entry.get()) <= file_count and int(entry.get()) >= 0 else file_count
     timed_function = timed_execution(System.process_images)
-    timed_function(directory, num_files)
+    timed_function(directory, csv_path, num_files)
     
     
     root.destroy()
 
-"""Records how long given function takes to run"""
+def select_csv():
+    global csv_path
+    csv_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
+    if csv_path:
+        csv_button['state'] = tk.DISABLED
+
+# Records how long given function takes to run
 def timed_execution(func):
     def wrapper(*args, **kwargs):
         start_time = time.time()  # Start the timer
@@ -60,6 +68,10 @@ entry_label = tk.Label(root, text="Enter number of files to process\nLeave the b
 entry_label.pack(pady=5)
 entry = tk.Entry(root)
 entry.pack(pady=5)
+
+# Create button to input csv file
+csv_button = tk.Button(root, text="Select CSV File", command=select_csv, bg='#F9D794')
+csv_button.pack(pady=10)
 
 # Create button to open directory
 button = tk.Button(root, text="Select a Directory of Images", command=open_directory, bg='#94F7F9')

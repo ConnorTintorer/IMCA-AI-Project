@@ -5,13 +5,16 @@ import json
 
 
 PROMPT = """Given the following image data, please check if the image contains any of the following keywords:
-    Abstract, Night, Body of Water, Boat, Person, Mountain, Fruit, Still-life, Trees, Landscape, House, Infrastructure, Building, Bridge, Day, Light, Transportation, Animal, Dog, Cat, Horse, Cow, River, Lake, Ocean, Flower, Nude, Historical, Portraiture, Genre, Woman, Man, Child, Bird, Garden, Geometric, Biomorphic, Monochrome, Gestural Abstraction, Symmetry, Text, Forshortening, Pattern, Brushstrokes
+    Abstract, Night, Body of Water, Boat, Person, Mountain, Fruit, Still-life, Trees, Landscape, House, Infrastructure, Building, Bridge, Day, Light, Transportation, Animal, Dog, Cat, Horse, Cow, River, Lake, Ocean, Flower, Nude, Historical, Portraiture, Genre, Woman, Man, Child, Bird, Garden, Geometric, Biomorphic, Monochrome, Gestural Abstraction, Symmetry, Text, Foreshortening, Pattern, Brushstrokes
 
     Please return the identified keywords as a comma-separated list. If no keywords are identified, return 5 custom keywords not on the list."
     """
 
 # alternative prompt for generating descriptions for the artwork
 #PROMPT = "Given the following image, provide a visual description of the artwork"
+
+class ContentViolationException(Exception):
+    pass
 
 def get_descriptions_instead(image_data:list):
     request = "Provide a brief, 2-3 sentence description for the following image"
@@ -25,7 +28,7 @@ def get_descriptions_instead(image_data:list):
 
     return response_list
 
-def call_gpt(image_data:list)->list:
+def call_gpt(image_data:list, keywords:list)->list:
     ''' loops through all the images and makes api calls for each of them
     
         Args: image_data: list of dictionarys containing the image data
@@ -34,14 +37,19 @@ def call_gpt(image_data:list)->list:
     
     # request = "Describe the provided image by returning a list of single-word keyword classifications"
     # other example to filter for specific, provided keywords
-    request = PROMPT
+    
+    request = f"Given the following image data, please check if the image contains any of the following keywords: {keywords}, Please return the identified keywords as a comma-separated list."
     response_list = [] # list of dictionaries where each dictionary contains id, gpt4o response
 
     with open("raw_response.csv", 'w', encoding='utf-8') as file:
         for image in image_data:
             base64 = image["base64"]
 
-            api_response = OpenAIPrompting.get_image_query(request, base64)
+            try:
+                api_response = OpenAIPrompting.get_image_query(request, base64)
+            except ContentViolationException:
+                api_response = "ERROR: CONTENT FILTER VIOLATION"
+                
             response_list.append({"id": image['id'], "filename": image['filename'], "response": api_response})
             file.write(f"filename: {image['filename']}, response:  {api_response}")
 
@@ -76,11 +84,15 @@ def write_to_csv(filtered:pd.DataFrame)->None:
     filtered.to_csv("image_data.csv", index=False)
 
 @staticmethod
-def process_images(path, num_files=0):
+def process_images(path, csv_path, num_files=0):
     """Processes all the images in the given directory
         Writes results to csv file"""
+    # converts keywords csv file to list of keywords
+    df = pd.read_csv(csv_path)
+    keywords = df.values.tolist()
+    
     image_data = convertbase64.get_image_data(path, num_files)
-    classified_images = call_gpt(image_data)
+    classified_images = call_gpt(image_data, keywords)
     filtered_images = filter_response(classified_images)
     write_to_csv(filtered_images)
     # print(OpenAIPrompting.print_total_tokens())
@@ -139,6 +151,7 @@ def load_into_json(image_data):
 PATH = ''
 
 if __name__ == "__main__":
+    pass
     # for testing only
-    process_images(PATH)
+    #process_images(PATH)
     
