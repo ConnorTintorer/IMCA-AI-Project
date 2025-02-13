@@ -26,14 +26,17 @@ OpenAI's GPT-4o model is used to generate responses based on image input.
 Keyword classification data is stored in image_data.csv with the format "id, filename, classification"
 
 ## **Using your API Key**
-To use your OpenAI key create a text file under /src titled "Key.txt" and paste your API key.
+To use your OpenAI key copy and paste your API key into the .env file. It should look like this (replace API_KEY with your own:
+API_KEY=10000thisismykey111222
+ENDPOINT=""
 
 ## **How to Run**
-To run the program you just need to run Interface.py. This will create a GUI window from which you can select the directory of images as well as how many images you want to process. After selecting the folder, wait for the program to finish. The runtime will be printed to the terminal and the list of classifications will be written to "image_data.csv"
+To run the program you just need to run Interface.py. This will create a GUI window from which you can select a csv file containing the desired keywords as well as the directory of images as well as how many images you want to process. After selecting the folder, wait for the program to finish. The runtime will be printed to the terminal and the list of classifications will be written to "image_data.csv". 
 
 ## **Constraints/Details**
 **Model**
-- Currently, GPT4o is the only model with vision capabilities so this model must be used
+- Uses ZotGPT API
+- Currently, GPT4o is the only model with vision capabilities so this model is being used
 - Specific restraints relating to GPT4o and Vision can be read about here: (https://platform.openai.com/docs/guides/vision)
 
 **Image format**
@@ -47,7 +50,7 @@ To run the program you just need to run Interface.py. This will create a GUI win
 
 **Cost**
 - Uses the API key linked with your openAI account to generate responses
-- a folder of 15 images costs about $0.03 USD
+- a folder of 15 images costs approximently $0.03 USD
 - Image detail is set to "low" to decrease costs
 - max_tokens is set to 300 per image response (note this does not include the amount of tokens required for the prompt itself)
 
