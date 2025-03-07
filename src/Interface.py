@@ -33,6 +33,7 @@ def select_csv():
     csv_path = filedialog.askopenfilename(filetypes=[("CSV files", "*.csv")])
     if csv_path:
         csv_button['state'] = tk.DISABLED
+    button['state'] = tk.NORMAL
 
 # Records how long given function takes to run
 def timed_execution(func):
@@ -41,7 +42,7 @@ def timed_execution(func):
         result = func(*args, **kwargs)  # Call the function
         end_time = time.time()  # End the timer
         duration = end_time - start_time  # Calculate the duration
-        print(f"Function '{func.__name__}' took {duration:.4f} seconds to complete.")
+        print(f"Function '{func.__name__}' took {duration:.4f} seconds to complete. Keyword Results are stored in image_data.csv")
         return result
     return wrapper
 
@@ -52,29 +53,33 @@ root.geometry("700x400")
 root['background'] = '#E1CDB3'
 
 #Peter picture :D
-cwd = os.path.dirname(os.path.abspath(__file__))
-peter_filename = "peter2.png"
-peter_path = os.path.join(cwd, peter_filename)
-peter = Image.open(peter_path)
-peter = peter.resize((250, 200), Image.Resampling.LANCZOS)
-photo = ImageTk.PhotoImage(peter)
+# cwd = os.path.dirname(os.path.abspath(__file__))
+# peter_filename = "peter2.png"
+# peter_path = os.path.join(cwd, peter_filename)
+# peter = Image.open(peter_path)
+# peter = peter.resize((250, 200), Image.Resampling.LANCZOS)
+# photo = ImageTk.PhotoImage(peter)
 
-#image label
-image_label = tk.Label(root, image=photo, border=False)
-image_label.pack(pady=20)
+# #image label
+# image_label = tk.Label(root, image=photo, border=False)
+# image_label.pack(pady=20)
 
 #Allow entry to number of files to process
-entry_label = tk.Label(root, text="Enter number of files to process\nLeave the box blank if you wish to process every file in the folder", bg='#94F7F9')
+entry_label = tk.Label(root, text="1. Enter Number of Images to Process\n(Leave the box blank if you wish to process every file in the folder)",fg='#FECC07', bg='#255799', font=("Helvetica", 16))
 entry_label.pack(pady=5)
 entry = tk.Entry(root)
 entry.pack(pady=5)
 
 # Create button to input csv file
-csv_button = tk.Button(root, text="Select CSV File", command=select_csv, bg='#F9D794')
+csv_button = tk.Button(root, text="2. Select Keywords CSV File", command=select_csv, bg='#FECC07', font=("Helvetica", 16))
 csv_button.pack(pady=10)
 
+# Disable csv button then enable select Directory button
+
 # Create button to open directory
-button = tk.Button(root, text="Select a Directory of Images", command=open_directory, bg='#94F7F9')
+button = tk.Button(root, text="3. Select a Directory of Images to Process", command=open_directory, fg='#FECC07', bg='#255799', font=("Helvetica", 16))
+button['state'] = tk.DISABLED
+
 button.pack(pady=20)
 
 
