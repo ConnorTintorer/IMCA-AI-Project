@@ -19,12 +19,18 @@ class ContentViolationException(Exception):
 def get_descriptions_instead(image_data:list):
     request = "Provide a brief, 2-3 sentence description for the following image"
     response_list = [] # list of dictionaries where each dictionary contains id, gpt4o response
+    with open("raw_response.csv", 'w', encoding='utf-8') as file:
+        for image in image_data:
+            base64 = image["base64"]
 
-    for image in image_data:
-        base64 = image["base64"]
+            try:
+                api_response = OpenAIPrompting.get_image_query(request, base64)
+            except ContentViolationException:
+                api_response = "ERROR: CONTENT FILTER VIOLATION"
+                
+            response_list.append({"id": image['id'], "filename": image['filename'], "response": api_response})
+            file.write(f"filename: {image['filename']}, response:  {api_response}")
 
-        api_response = OpenAIPrompting.get_image_query(request, base64)
-        response_list.append({"id": image['id'], "filename": image['filename'], "response": api_response})
 
     return response_list
 
@@ -84,7 +90,7 @@ def write_to_csv(filtered:pd.DataFrame)->None:
     filtered.to_csv("image_data.csv", index=False)
 
 @staticmethod
-def process_images(path, csv_path, num_files=0):
+def process_images(path, csv_path, num_files=0, get_descriptions=False):
     """Processes all the images in the given directory
         Writes results to csv file"""
     # converts keywords csv file to list of keywords
@@ -93,6 +99,12 @@ def process_images(path, csv_path, num_files=0):
     
     image_data = convertbase64.get_image_data(path, num_files)
     classified_images = call_gpt(image_data, keywords)
+    # If get descriptions is toggled on (It is off by default)
+    if(get_descriptions):
+        description_images = get_descriptions_instead(image_data)
+        filtered_descriptions = filter_response(description_images)
+        filtered_descriptions.to_csv("image_description_data.csv", index=False)
+        
     filtered_images = filter_response(classified_images)
     write_to_csv(filtered_images)
     # print(OpenAIPrompting.print_total_tokens())

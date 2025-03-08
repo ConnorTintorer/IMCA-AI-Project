@@ -1,12 +1,14 @@
 import tkinter as tk
 from tkinter import filedialog
 from tkinter import ttk
+from tkinter import messagebox as mb 
 from PIL import Image, ImageTk
 import System
 import time
 import os
 
 csv_path = None
+DESCRIPTIONS = False
 
 def open_directory():
     global csv_path
@@ -23,7 +25,7 @@ def open_directory():
     # reassigns number of files to total file count processed if entry box is left blank or negative or too large
     num_files = int(entry.get()) if entry.get().isdigit() and int(entry.get()) <= file_count and int(entry.get()) >= 0 else file_count
     timed_function = timed_execution(System.process_images)
-    timed_function(directory, csv_path, num_files)
+    timed_function(directory, csv_path, num_files, DESCRIPTIONS)
     
     
     root.destroy()
@@ -35,6 +37,14 @@ def select_csv():
         csv_button['state'] = tk.DISABLED
     button['state'] = tk.NORMAL
 
+def toggle_descriptions():
+    res = mb.askquestion("Descriptions", "Turn on artwork descriptions?") 
+      
+    if res == 'yes':
+        DESCRIPTIONS = True
+    else:
+        DESCRIPTIONS = False
+    
 # Records how long given function takes to run
 def timed_execution(func):
     def wrapper(*args, **kwargs):
@@ -63,6 +73,10 @@ root['background'] = '#E1CDB3'
 # #image label
 # image_label = tk.Label(root, image=photo, border=False)
 # image_label.pack(pady=20)
+
+# Create button to toggle descriptions on/off
+desc_button = tk.Button(root, text="Turn on Descriptions?", command=toggle_descriptions, bg='#FECC07', font=("Helvetica", 16))
+desc_button.pack(pady = 2)
 
 #Allow entry to number of files to process
 entry_label = tk.Label(root, text="1. Enter Number of Images to Process\n(Leave the box blank if you wish to process every file in the folder)",fg='#FECC07', bg='#255799', font=("Helvetica", 16))
