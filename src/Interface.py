@@ -10,6 +10,14 @@ import os
 csv_path = None
 DESCRIPTIONS = False
 
+def toggle_descriptions():
+    res = mb.askquestion("Descriptions", "Turn on artwork descriptions?") 
+      
+    if res == 'yes':
+        DESCRIPTIONS = True
+    else:
+        DESCRIPTIONS = False
+        
 def open_directory():
     global csv_path
     directory = filedialog.askdirectory()
@@ -37,13 +45,7 @@ def select_csv():
         csv_button['state'] = tk.DISABLED
     button['state'] = tk.NORMAL
 
-def toggle_descriptions():
-    res = mb.askquestion("Descriptions", "Turn on artwork descriptions?") 
-      
-    if res == 'yes':
-        DESCRIPTIONS = True
-    else:
-        DESCRIPTIONS = False
+
     
 # Records how long given function takes to run
 def timed_execution(func):
