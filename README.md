@@ -25,6 +25,10 @@ The program takes in a directory of images and returns a list of classifications
 OpenAI's GPT-4o model is used to generate responses based on image input. 
 Keyword classification data is stored in image_data.csv with the format "id, filename, classification"
 
+## **SETUP**
+In your terminal run the following command to install the required packages:
+pip install -r requirements.txt
+
 ## **Using your API Key**
 To use your OpenAI key copy and paste your API key into the .env file. It should look like this (replace API_KEY with your own:
 API_KEY=10000thisismykey111222
