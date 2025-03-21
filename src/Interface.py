@@ -4,8 +4,10 @@ from tkinter import ttk
 from tkinter import messagebox as mb 
 from PIL import Image, ImageTk
 import System
+import output
 import time
 import os
+import atexit
 
 csv_path = None
 DESCRIPTIONS = False
@@ -54,10 +56,15 @@ def timed_execution(func):
         result = func(*args, **kwargs)  # Call the function
         end_time = time.time()  # End the timer
         duration = end_time - start_time  # Calculate the duration
-        print(f"Function '{func.__name__}' took {duration:.4f} seconds to complete. Keyword Results are stored in image_data.csv")
+        print(f"Function '{func.__name__}' took {duration:.4f} seconds to complete. Keyword Results are stored in output.csv")
         return result
     return wrapper
 
+def exit_handler():
+    """When program exits, format data to powerBI structure"""
+    print("Data written to output.csv")
+    output.format_table()
+    
 # Create Window
 root = tk.Tk()
 root.title("Open a Directory of Images")
@@ -77,8 +84,8 @@ root['background'] = '#E1CDB3'
 # image_label.pack(pady=20)
 
 # Create button to toggle descriptions on/off
-desc_button = tk.Button(root, text="Turn on Descriptions?", command=toggle_descriptions, bg='#FECC07', font=("Helvetica", 16))
-desc_button.pack(pady = 2)
+#desc_button = tk.Button(root, text="Turn on Descriptions?", command=toggle_descriptions, bg='#FECC07', font=("Helvetica", 16))
+#desc_button.pack(pady = 2)
 
 #Allow entry to number of files to process
 entry_label = tk.Label(root, text="1. Enter Number of Images to Process\n(Leave the box blank if you wish to process every file in the folder)",fg='#FECC07', bg='#255799', font=("Helvetica", 16))
@@ -98,5 +105,5 @@ button['state'] = tk.DISABLED
 
 button.pack(pady=20)
 
-
+atexit.register(exit_handler)
 root.mainloop()

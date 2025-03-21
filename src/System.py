@@ -2,7 +2,7 @@ import OpenAIPrompting
 import convertbase64
 import pandas as pd
 import json
-
+import csv
 
 PROMPT = """Given the following image data, please check if the image contains any of the following keywords:
     Abstract, Night, Body of Water, Boat, Person, Mountain, Fruit, Still-life, Trees, Landscape, House, Infrastructure, Building, Bridge, Day, Light, Transportation, Animal, Dog, Cat, Horse, Cow, River, Lake, Ocean, Flower, Nude, Historical, Portraiture, Genre, Woman, Man, Child, Bird, Garden, Geometric, Biomorphic, Monochrome, Gestural Abstraction, Symmetry, Text, Foreshortening, Pattern, Brushstrokes
@@ -17,15 +17,15 @@ class ContentViolationException(Exception):
     pass
 
 def get_descriptions_instead(image_data:list):
-    request = "Provide a brief, 2-3 sentence description for the following image"
+    request = "Provide a brief, 2-3 sentence description for the following image. Do not make assumptions about the title, period, or artist"
     response_list = [] # list of dictionaries where each dictionary contains id, gpt4o response
-    with open("raw_response.csv", 'w', encoding='utf-8') as file:
+    with open("description_response.csv", 'w', encoding='utf-8') as file:
         for image in image_data:
             base64 = image["base64"]
 
             try:
                 api_response = OpenAIPrompting.get_image_query(request, base64)
-            except ContentViolationException:
+            except:
                 api_response = "ERROR: CONTENT FILTER VIOLATION"
                 
             response_list.append({"id": image['id'], "filename": image['filename'], "response": api_response})
@@ -47,17 +47,19 @@ def call_gpt(image_data:list, keywords:list)->list:
     request = f"Given the following image data, please check if the image contains any of the following keywords: {keywords}, Please return the identified keywords as a comma-separated list."
     response_list = [] # list of dictionaries where each dictionary contains id, gpt4o response
 
-    with open("raw_response.csv", 'w', encoding='utf-8') as file:
+    with open("raw_response.csv", 'w', encoding='utf-8', newline='') as file:
+        writer = csv.writer(file, quoting=csv.QUOTE_MINIMAL)
         for image in image_data:
             base64 = image["base64"]
 
             try:
                 api_response = OpenAIPrompting.get_image_query(request, base64)
-            except ContentViolationException:
+            except:
                 api_response = "ERROR: CONTENT FILTER VIOLATION"
                 
             response_list.append({"id": image['id'], "filename": image['filename'], "response": api_response})
-            file.write(f"filename: {image['filename']}, response:  {api_response}")
+            # file.write(f"filename: {image['filename']}, response:  {api_response}")
+            writer.writerow([image['filename'], f'{api_response}'])
 
     return response_list
 
@@ -76,6 +78,15 @@ def filter_response(classified_images:list)->pd.DataFrame:
     
     return df
 
+def filter_description(classified_images:list)->pd.DataFrame:
+    for image in classified_images:
+        image['description'] = image['response']
+        # del image['response'] # removes raw string response, replacing it with a classifications list
+
+    df = pd.DataFrame(classified_images)
+    df['response'] = df['response']
+    
+    return df
 
 def write_to_csv(filtered:pd.DataFrame)->None:
     """Writes all relevant data to a csv file including:
@@ -102,7 +113,7 @@ def process_images(path, csv_path, num_files=0, get_descriptions=False):
     # If get descriptions is toggled on (It is off by default)
     if(get_descriptions):
         description_images = get_descriptions_instead(image_data)
-        filtered_descriptions = filter_response(description_images)
+        filtered_descriptions = filter_description(description_images)
         filtered_descriptions.to_csv("image_description_data.csv", index=False)
         
     filtered_images = filter_response(classified_images)
