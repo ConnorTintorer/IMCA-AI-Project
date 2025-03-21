@@ -23,7 +23,7 @@ __/__/_______/___/__\___\__________________________________________________
 The IMCA Artwork Keyword Classification is designed to generate and assign keyword "tags" to artworks in a museum's collection. The program is designed to allow for high scalibility as the collection of the museum increases.
 The program takes in a directory of images and returns a list of classifications related to each image. The classifications are currently a predetermined, set list of around 30 words.
 OpenAI's GPT-4o model is used to generate responses based on image input. 
-Keyword classification data is stored in image_data.csv with the format "id, filename, classification"
+Keyword classification data is stored in output.csv with the format "filename, id, classification"
 
 ## **SETUP**
 In your terminal run the following command to install the required packages:
@@ -35,7 +35,7 @@ API_KEY=10000thisismykey111222
 ENDPOINT=""
 
 ## **How to Run**
-To run the program you just need to run Interface.py. This will create a GUI window from which you can select a csv file containing the desired keywords as well as the directory of images as well as how many images you want to process. After selecting the folder, wait for the program to finish. The runtime will be printed to the terminal and the list of classifications will be written to "image_data.csv". 
+To run the program you just need to run Interface.py. This will create a GUI window from which you can select a csv file containing the desired keywords as well as the directory of images as well as how many images you want to process. After selecting the folder, wait for the program to finish. The runtime will be printed to the terminal and the list of classifications will be written to "output.csv". 
 
 ## **Constraints/Details**
 **Model**
